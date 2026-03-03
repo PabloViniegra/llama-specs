@@ -5,7 +5,7 @@ pub mod sidebar;
 use ratatui::{
     Frame,
     layout::{Constraint, Layout},
-    style::Stylize,
+    style::{Color, Style, Stylize},
     text::{Line, Span},
     widgets::Paragraph,
 };
@@ -14,6 +14,8 @@ use rust_i18n::t;
 use crate::app::{AppMode, AppState};
 
 use self::{header::Header, model_list::ModelList, sidebar::Sidebar};
+
+const APP_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// Renders the full TUI. Called once per frame from the main loop.
 pub fn view(state: &mut AppState, frame: &mut Frame) {
@@ -86,32 +88,60 @@ fn build_footer(mode: AppMode, clipboard_msg: Option<String>) -> Paragraph<'stat
             " ".into(),
             Span::styled(
                 msg,
-                ratatui::style::Style::default()
-                    .fg(ratatui::style::Color::Green)
+                Style::default()
+                    .fg(Color::Green)
                     .add_modifier(ratatui::style::Modifier::BOLD),
             ),
         ]));
     }
 
+    let version_span = Span::styled(
+        format!(" v{APP_VERSION} "),
+        Style::default().fg(Color::DarkGray),
+    );
+
+    // Claude Code-style keybinding display: [key] action
     let keys: Line = if mode == AppMode::Search {
-        Line::from(vec![
+        let mut spans: Vec<Span> = vec![
             " ".into(),
-            t!("footer_esc").bold().cyan(),
+            "[esc]".bold().cyan(),
+            " ".dark_gray(),
+            t!("footer_esc").dark_gray(),
             "  ".into(),
-            t!("footer_nav").dim(),
-        ])
+            "[↑↓]".bold().cyan(),
+            " ".dark_gray(),
+            t!("footer_nav").dark_gray(),
+        ];
+        // version right-padded via a filler — we append it at the end and rely on the
+        // terminal width to push it. A proper right-align needs a split layout, but for
+        // footer simplicity we just append with a fixed spacer.
+        spans.push(Span::raw("  "));
+        spans.push(version_span);
+        Line::from(spans)
     } else {
         Line::from(vec![
             " ".into(),
-            t!("footer_quit").bold().cyan(),
+            "[q]".bold().cyan(),
+            " ".dark_gray(),
+            t!("footer_quit").dark_gray(),
             "  ".into(),
-            t!("footer_search").bold().cyan(),
+            "[/]".bold().cyan(),
+            " ".dark_gray(),
+            t!("footer_search").dark_gray(),
             "  ".into(),
-            t!("footer_nav").dim(),
+            "[↑↓]".bold().cyan(),
+            " ".dark_gray(),
+            t!("footer_nav").dark_gray(),
             "  ".into(),
-            t!("footer_lang").dim(),
+            "[L]".bold().cyan(),
+            " ".dark_gray(),
+            t!("footer_lang").dark_gray(),
             "  ".into(),
-            t!("footer_copy").dim(),
+            "[c]".bold().cyan(),
+            " ".dark_gray(),
+            t!("footer_copy").dark_gray(),
+            "  ".into(),
+            version_span,
         ])
     };
     Paragraph::new(keys)

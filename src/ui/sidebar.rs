@@ -3,7 +3,7 @@ use ratatui::{
     layout::{Constraint, Layout, Rect},
     style::{Color, Style, Stylize},
     text::{Line, Span},
-    widgets::{Block, Borders, Gauge, Paragraph, Widget, Wrap},
+    widgets::{Block, BorderType, Borders, Gauge, Paragraph, Widget, Wrap},
 };
 use rust_i18n::t;
 
@@ -20,12 +20,16 @@ pub struct Sidebar<'a> {
 
 impl Widget for Sidebar<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let block = Block::bordered().title(Span::styled(
-            format!(" Hardware [{}] ", self.hardware.arch),
+        let arch_label = Span::styled(
+            format!(" 💻 Hardware [{}] ", self.hardware.arch),
             Style::default()
                 .fg(Color::Cyan)
                 .add_modifier(ratatui::style::Modifier::BOLD),
-        ));
+        );
+        let block = Block::bordered()
+            .border_type(BorderType::Rounded)
+            .border_style(Style::default().fg(Color::DarkGray))
+            .title(arch_label);
         let inner = block.inner(area);
         block.render(area, buf);
 
@@ -42,7 +46,7 @@ impl Widget for Sidebar<'_> {
         render_gauge(
             ram_area,
             buf,
-            &t!("sidebar_ram"),
+            &format!("💾 {}", t!("sidebar_ram")),
             self.hardware.ram_available_mb,
             self.hardware.ram_total_mb,
             Color::Cyan,
@@ -50,7 +54,7 @@ impl Widget for Sidebar<'_> {
 
         // VRAM bar
         if let Some(gpu) = &self.hardware.gpu {
-            let label = format!("{} ({})", t!("sidebar_vram"), gpu.name);
+            let label = format!("🖥  {} ({})", t!("sidebar_vram"), gpu.name);
             render_gauge(
                 vram_area,
                 buf,
@@ -61,19 +65,21 @@ impl Widget for Sidebar<'_> {
             );
         } else {
             let no_gpu_label = t!("sidebar_no_gpu").to_string();
-            Paragraph::new(no_gpu_label).dim().render(vram_area, buf);
+            Paragraph::new(format!("🖥  {no_gpu_label}"))
+                .dim()
+                .render(vram_area, buf);
         }
 
         // Horizontal separator
         let sep_line = "─".repeat(inner.width as usize);
-        Paragraph::new(sep_line.dim()).render(sep_area, buf);
+        Paragraph::new(sep_line).dark_gray().render(sep_area, buf);
 
         // Compatibility detail panel
         if let (Some(name), Some(compat)) = (self.selected_name, self.compat) {
             render_compat(detail_area, buf, name, compat);
         } else {
             let hint = Paragraph::new("Select a model to see\ncompatibility details")
-                .dim()
+                .dark_gray()
                 .wrap(Wrap { trim: true });
             hint.render(detail_area, buf);
         }
@@ -126,7 +132,7 @@ fn render_compat(area: Rect, buf: &mut Buffer, name: &str, compat: &CompatResult
     };
 
     let lines: Vec<Line> = vec![
-        Line::from(vec![t!("sidebar_selected").dim(), ": ".dim()]),
+        Line::from(vec![t!("sidebar_selected").dark_gray(), ": ".dark_gray()]),
         Line::from(Span::styled(
             format!("  {name}"),
             Style::default()
@@ -135,13 +141,13 @@ fn render_compat(area: Rect, buf: &mut Buffer, name: &str, compat: &CompatResult
         )),
         Line::raw(""),
         Line::from(vec![
-            t!("sidebar_estimated").dim(),
+            t!("sidebar_estimated").dark_gray(),
             format!(":  {:.1} GB", compat.estimated_mb as f64 / 1024.0).white(),
         ]),
         Line::raw(""),
         Line::from(vec![
-            t!("sidebar_verdict").dim(),
-            ": ".dim(),
+            t!("sidebar_verdict").dark_gray(),
+            ": ".dark_gray(),
             Span::styled(
                 verdict_str.as_ref(),
                 Style::default()
@@ -158,7 +164,6 @@ fn render_compat(area: Rect, buf: &mut Buffer, name: &str, compat: &CompatResult
         Line::raw(""),
     ];
 
-    // Memory breakdown lines
     let mut all_lines = lines;
 
     if compat.vram_used_mb > 0 {

@@ -3,7 +3,7 @@ use ratatui::{
     layout::{Constraint, Layout, Rect},
     style::{Color, Modifier, Style, Stylize},
     text::{Line, Span},
-    widgets::{Block, List, ListItem, ListState, Paragraph, StatefulWidget, Widget},
+    widgets::{Block, BorderType, List, ListItem, ListState, Paragraph, StatefulWidget, Widget},
 };
 use rust_i18n::t;
 
@@ -61,21 +61,31 @@ impl StatefulWidget for ModelList<'_> {
         );
 
         let list = List::new(items)
-            .block(Block::bordered().title(title))
+            .block(
+                Block::bordered()
+                    .border_type(BorderType::Rounded)
+                    .border_style(Style::default().fg(Color::DarkGray))
+                    .title(title),
+            )
             .highlight_style(
                 Style::default()
                     .bg(Color::DarkGray)
-                    .add_modifier(ratatui::style::Modifier::BOLD),
+                    .add_modifier(Modifier::BOLD),
             )
             .highlight_symbol("▶ ");
 
         if self.visible.is_empty() {
             Paragraph::new(empty_hint)
-                .block(Block::bordered().title(Span::styled(
-                    format!(" {} ", t!("list_title")),
-                    Style::default().fg(Color::Cyan),
-                )))
-                .dim()
+                .block(
+                    Block::bordered()
+                        .border_type(BorderType::Rounded)
+                        .border_style(Style::default().fg(Color::DarkGray))
+                        .title(Span::styled(
+                            format!(" {} ", t!("list_title")),
+                            Style::default().fg(Color::Cyan),
+                        )),
+                )
+                .dark_gray()
                 .render(list_area, buf);
         } else {
             StatefulWidget::render(list, list_area, buf, state);
@@ -85,17 +95,13 @@ impl StatefulWidget for ModelList<'_> {
         if let Some(s_area) = search_area {
             let query_display = format!("/ {}_", self.search_query);
             let search_block = Block::bordered()
+                .border_type(BorderType::Rounded)
+                .border_style(Style::default().fg(Color::Yellow))
                 .title(Span::styled(" Search ", Style::default().fg(Color::Yellow)));
             Paragraph::new(query_display)
                 .block(search_block)
                 .yellow()
                 .render(s_area, buf);
-        } else if self.mode == AppMode::Normal && self.search_query.is_empty() {
-            // Show the search hint as a subtle title bottom when not searching.
-            let hint_line = Line::from(vec![" ".into(), t!("list_search_hint").dim(), " ".into()]);
-            // Draw hint in the block border title-bottom area — we use a workaround
-            // by rendering a transparent paragraph with the hint.
-            let _ = hint_line; // used below via block title_bottom
         }
     }
 }
@@ -106,7 +112,6 @@ fn build_item<'a>(
     verdict: Option<Verdict>,
 ) -> ListItem<'a> {
     // ── Installed indicator ────────────────────────────────────────────────
-    // "✓" in bold green when locally installed, a dim dash otherwise.
     let (install_sym, install_style) = if installed {
         ("✓ ", Style::default().fg(Color::Green).add_modifier(Modifier::BOLD))
     } else {
@@ -123,7 +128,6 @@ fn build_item<'a>(
     };
 
     // ── Model name ─────────────────────────────────────────────────────────
-    // Bold + bright white when installed so it pops from the list.
     let name_style = if installed {
         Style::default()
             .fg(Color::White)

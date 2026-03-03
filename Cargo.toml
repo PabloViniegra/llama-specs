@@ -1,6 +1,6 @@
 [package]
 name = "llama-specs"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 description = "Check which Ollama models are compatible with your hardware before downloading"
 repository = "https://github.com/PabloViniegra/llama-specs"
