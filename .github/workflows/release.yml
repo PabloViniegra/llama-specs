@@ -1,16 +1,17 @@
-# Release workflow managed by cargo-dist v0.31.0.
-# Triggered by pushing a tag like v0.1.0 → creates a GitHub Release
-# with binaries for Linux x86_64, macOS Intel, macOS Apple Silicon, and Windows x86_64.
+# Release workflow for llama-specs using cargo-dist v0.31.0.
+#
+# Triggered by pushing a version tag (e.g. v0.1.0).
+# Builds binaries for Linux, macOS Intel, macOS Apple Silicon and Windows,
+# then creates a GitHub Release with the artifacts.
 #
 # To cut a release:
-#   git tag -a v0.1.0 -m "Release v0.1.0"
-#   git push origin v0.1.0
+#   git tag -a v0.2.0 -m "Release v0.2.0"
+#   git push origin v0.2.0
 
 name: Release
 
 permissions:
   contents: write
-  id-token: write  # Required for GitHub Attestations (supply-chain security)
 
 on:
   push:
@@ -32,14 +33,14 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install cargo-dist
+      - name: Install dist
         run: |
           curl --proto '=https' --tlsv1.2 -LsSf \
             https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/cargo-dist-installer.sh | sh
 
       - id: plan
         run: |
-          cargo dist manifest --output-format=json --no-local-paths > dist-manifest.json
+          dist manifest --output-format=json --no-local-paths > dist-manifest.json
           echo "manifest=$(cat dist-manifest.json)" >> "$GITHUB_OUTPUT"
 
       - name: Upload dist-manifest
@@ -48,7 +49,7 @@ jobs:
           name: dist-manifest.json
           path: dist-manifest.json
 
-  # ── Build (native runners per target) ─────────────────────────────────────
+  # ── Build (native runner per target) ──────────────────────────────────────
   build-local-artifacts:
     name: Build ${{ matrix.target }}
     needs: plan
@@ -93,19 +94,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-${{ matrix.target }}-cargo-
 
-      - name: Install cargo-dist
-        shell: bash
+      - name: Install dist (Unix)
+        if: runner.os != 'Windows'
         run: |
-          if [[ "${{ matrix.os }}" == windows* ]]; then
-            curl --proto '=https' --tlsv1.2 -LsSf \
-              https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/cargo-dist-installer.ps1 | powershell -Command -
-          else
-            curl --proto '=https' --tlsv1.2 -LsSf \
-              https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/cargo-dist-installer.sh | sh
-          fi
+          curl --proto '=https' --tlsv1.2 -LsSf \
+            https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/cargo-dist-installer.sh | sh
+
+      - name: Install dist (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          irm https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/cargo-dist-installer.ps1 | iex
 
       - name: Build binary
-        run: cargo dist build --target=${{ matrix.target }} --artifacts=local
+        run: dist build --target=${{ matrix.target }} --artifacts=local
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -117,7 +119,7 @@ jobs:
   publish:
     name: Publish release
     needs: [plan, build-local-artifacts]
-    # Only create a real release when a version tag is pushed (not on PRs).
+    # Only create a release when a version tag is pushed (not on PRs).
     if: ${{ startsWith(github.ref, 'refs/tags/') }}
     runs-on: ubuntu-latest
     env:
@@ -131,10 +133,10 @@ jobs:
           path: artifacts
           merge-multiple: true
 
-      - name: Install cargo-dist
+      - name: Install dist
         run: |
           curl --proto '=https' --tlsv1.2 -LsSf \
             https://github.com/axodotdev/cargo-dist/releases/download/v0.31.0/cargo-dist-installer.sh | sh
 
       - name: Create GitHub Release
-        run: cargo dist publish --output-format=json
+        run: dist publish --output-format=json

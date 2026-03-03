@@ -2,6 +2,9 @@
 name = "llama-specs"
 version = "0.1.0"
 edition = "2024"
+description = "Check which Ollama models are compatible with your hardware before downloading"
+repository = "https://github.com/PabloViniegra/llama-specs"
+license = "MIT"
 
 [dependencies]
 ratatui = "0.30.0"
