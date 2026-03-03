@@ -1,0 +1,8 @@
+/target
+
+# AI
+CLAUDE.md
+.mcp.json
+.claude/*
+skills-lock.json
+docs/*

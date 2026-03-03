@@ -1,0 +1,42 @@
+app_title = "LlamaSpec"
+app_subtitle = "Verificador de Compatibilidad Ollama"
+
+ollama_running = "Ollama: ✓ Activo"
+ollama_stopped = "Ollama: ✗ Inactivo"
+ollama_checking = "Ollama: … Verificando"
+
+sidebar_ram = "RAM"
+sidebar_vram = "VRAM"
+sidebar_no_gpu = "Sin GPU NVIDIA detectada"
+sidebar_selected = "Seleccionado"
+sidebar_estimated = "Estimado"
+sidebar_verdict = "Veredicto"
+
+verdict_optimal = "ÓPTIMO"
+verdict_hybrid = "HÍBRIDO"
+verdict_slow = "LENTO (CPU)"
+verdict_incompatible = "INCOMPATIBLE"
+
+verdict_optimal_desc = "El modelo cabe completamente en VRAM"
+verdict_hybrid_desc = "El modelo usa VRAM + RAM combinadas"
+verdict_slow_desc = "El modelo solo corre en CPU"
+verdict_incompatible_desc = "Memoria insuficiente"
+
+detail_vram_used = "VRAM usada"
+detail_ram_used = "RAM usada"
+detail_installed = "Instalado"
+detail_not_installed = "No instalado"
+
+list_title = "Modelos"
+list_search_hint = "Presiona / para buscar"
+list_empty = "No se encontraron modelos"
+
+footer_quit = "q: salir"
+footer_search = "/: buscar"
+footer_nav = "↑↓: navegar"
+footer_lang = "Tab: idioma"
+footer_esc = "Esc: cancelar"
+footer_copy = "Ctrl+C: copiar comando"
+
+clipboard_copied = "✓ ¡Copiado al portapapeles!"
+clipboard_error = "✗ Error de portapapeles"

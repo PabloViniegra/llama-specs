@@ -1,0 +1,42 @@
+app_title = "LlamaSpec"
+app_subtitle = "Ollama Compatibility Checker"
+
+ollama_running = "Ollama: ✓ Running"
+ollama_stopped = "Ollama: ✗ Stopped"
+ollama_checking = "Ollama: … Checking"
+
+sidebar_ram = "RAM"
+sidebar_vram = "VRAM"
+sidebar_no_gpu = "No NVIDIA GPU detected"
+sidebar_selected = "Selected"
+sidebar_estimated = "Estimated"
+sidebar_verdict = "Verdict"
+
+verdict_optimal = "OPTIMAL"
+verdict_hybrid = "HYBRID"
+verdict_slow = "SLOW (CPU)"
+verdict_incompatible = "INCOMPATIBLE"
+
+verdict_optimal_desc = "Model fits entirely in VRAM"
+verdict_hybrid_desc = "Model splits across VRAM + RAM"
+verdict_slow_desc = "Model runs on CPU only"
+verdict_incompatible_desc = "Not enough memory"
+
+detail_vram_used = "VRAM used"
+detail_ram_used = "RAM used"
+detail_installed = "Installed"
+detail_not_installed = "Not installed"
+
+list_title = "Models"
+list_search_hint = "Press / to search"
+list_empty = "No models found"
+
+footer_quit = "q: quit"
+footer_search = "/: search"
+footer_nav = "↑↓: navigate"
+footer_lang = "Tab: language"
+footer_esc = "Esc: cancel"
+footer_copy = "Ctrl+C: copy run cmd"
+
+clipboard_copied = "✓ Copied to clipboard!"
+clipboard_error = "✗ Clipboard error"
