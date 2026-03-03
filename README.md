@@ -66,10 +66,26 @@ Default quantization assumed: **Q4_K_M (4 bits)**.
 
 ## Installation
 
-Clone the repository and build in release mode:
+### Pre-built binaries (recommended)
+
+Download the latest binary for your platform from the [GitHub Releases](https://github.com/PabloViniegra/llama-specs/releases) page, or use the one-line installers below.
+
+**Linux / macOS:**
+```bash
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/PabloViniegra/llama-specs/releases/latest/download/llama-specs-installer.sh | sh
+```
+
+**Windows (PowerShell):**
+```powershell
+irm https://github.com/PabloViniegra/llama-specs/releases/latest/download/llama-specs-installer.ps1 | iex
+```
+
+### Build from source
+
+Requires Rust 1.85+ (edition 2024):
 
 ```bash
-git clone https://github.com/your-username/llama-specs.git
+git clone https://github.com/PabloViniegra/llama-specs.git
 cd llama-specs
 cargo build --release
 ./target/release/llama-specs
